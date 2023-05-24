@@ -265,6 +265,90 @@ Returns: None
         for producto in lista_actualizada_precios:
             file.write(f"{producto['id']},{producto['nombre']},{producto['marca']},{producto['precio']},{producto['caracteristicas']}\n")
         
+def cargar_marcas():
+    lista_marcas = []
+    with open("marcas.txt", "r") as file:
+        for linea in file:
+            lista_marcas.append(linea)
+    return lista_marcas
+
+lista_marcas_nuevas = cargar_marcas()
+print(lista_marcas_nuevas)
+def agregar_nuevo_producto(lista: list):
+    for i in lista:
+        print(i)
+    lista_nombres = []
+    lista_ids = []
+    lista_caracteristicas = []
+    lista_precios = []
+    for i in lista_insumos:
+        lista_a_chequear = i["caracteristicas"].lower().split("~")
+        lista_ids.append(i["id"])
+        lista_nombres.append(i["nombre"])
+        lista_precios.append(i["precio"])
+        for j in lista_a_chequear:
+            lista_caracteristicas.append(j) 
+    lista_caracteristicas = list(set(lista_caracteristicas))   
+    lista_productos_nuevos = []
+    while True:
+        caracteristicas_nuevo_producto = []
+        marca_a_agregar = input("que marca desea elegir?")
+
+        id = input("ingrese id")
+        while id in lista_ids:
+            id = input("ingrese id")
+        nombre = input("ingrese nombre")
+        while nombre in lista_nombres:
+            nombre = input("ingrese nombre")
+        precio = input("ingrese precio")
+        caracteristica = input("ingrese caracteristica")
+        while caracteristica not in lista_caracteristicas:
+            caracteristica = input("ingrese caracteristica")
+        caracteristicas_nuevo_producto.append(caracteristica)
+        caracteristica2 = input("desea agregar otra caracteristica(si) o no(no)?")
+        if caracteristica2 == "si":
+            caracteristica2_real = input("ingrese caracteristica")
+            while caracteristica2_real not in lista_caracteristicas:
+                caracteristica2_real = input("ingrese caracteristica")
+            caracteristicas_nuevo_producto.append(caracteristica2_real)
+
+        caracteristica3 = input("desea agregar otra caracteristica(si) o no(no)?")
+        if caracteristica3 == "si":
+            caracteristica3_real = input("ingrese caracteristica")
+            while caracteristica3_real not in lista_caracteristicas:
+                caracteristica3_real = input("ingrese caracteristica")
+            caracteristicas_nuevo_producto.append(caracteristica2_real)
+
+        
+        caracteristicas_a_agregar = "~".join(caracteristicas_nuevo_producto)
+        producto_nuevo = {
+            "id":  id,
+            "nombre": nombre,
+            "marca": marca_a_agregar,
+            "precio":precio, 
+            "caracteristicas": caracteristicas_a_agregar
+        }
+        lista_productos_nuevos.append(producto_nuevo)
+        return lista_productos_nuevos
+lista_productos_nuevos = agregar_nuevo_producto(lista_marcas_nuevas)
+def guardar_datos_actualizados():
+    
+    lista_a_guardar = lista_insumos + lista_productos_nuevos    
+    tipo_archivo_a_guardar = input("elija tipo de archivo a gurdar(json o csv)").lower()
+    while tipo_archivo_a_guardar != "json" and tipo_archivo_a_guardar != "csv":
+        tipo_archivo_a_guardar = input("elija tipo de archivo a gurdar(json o csv)").lower()
+    
+    nombre_archivo = input("ingrese nombre de archivo nuevo que desea guardar(sin la extension)")
+    nuevo_nombre_archivo = f'{nombre_archivo}.{tipo_archivo_a_guardar}'
+    if tipo_archivo_a_guardar == "json":
+        with open(nuevo_nombre_archivo, "w") as file:
+            json.dump(lista_a_guardar, file)
+    elif tipo_archivo_a_guardar == "csv":
+        with open(nuevo_nombre_archivo, "w") as file:
+            for producto in lista_a_guardar:
+                file.write(f"{producto['id']},{producto['nombre']},{producto['marca']},{producto['precio']},{producto['caracteristicas']}\n")
+        
+
 def menu_opciones()->None:
     """Se ofrece un menu de opciones para realizar diferentes tareas sobre una lista de insumos.El usuario seleeciona lo que quiere hacer, y se ejecuta la funcion pedida
     
@@ -285,7 +369,9 @@ def menu_opciones()->None:
         | 7-Guardar en formato json         |
         | 8-leer desde formato json         |
         | 9-actualizar precios              |
-        | 10-Salir del programa             |
+        | 10-agregar producto
+        | 11- guardar daots actualizados
+          12- salir
         -------------------------------------    
             """
             )
@@ -311,6 +397,10 @@ def menu_opciones()->None:
         elif opcion == "9":
             actualizar_precios(lista_insumos)
         elif opcion == "10":
+            agregar_nuevo_producto(lista_marcas_nuevas)
+        elif opcion == "11":
+            guardar_datos_actualizados()
+        elif opcion == "12":
             break
         else: 
             print("opcion invalida")
